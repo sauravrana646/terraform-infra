@@ -61,6 +61,17 @@ resource "aws_instance" "tf_ec2" {
   availability_zone           = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
   vpc_security_group_ids      = [aws_security_group.tf_sg.id]
   subnet_id                   = tolist(data.aws_subnets.tf_vpc_subnets.ids)[count.index % length(data.aws_subnets.tf_vpc_subnets.ids)]
+  
+  ebs_block_device {
+          delete_on_termination = var.ec2_root_volume_delete_on_termination
+          device_name           = "${var.main_name}-root-ebs"
+          tags = {
+              "Name"      = "${var.main_name}-sg"
+              "ManagedBy" = "${var.controller_name}"
+          }
+          volume_size           = var.ec2_root_volume_size
+          volume_type           = "gp2"
+        }
   tags = {
     "Name"      = "${var.main_name}-instance-${count.index}"
     "ManagedBy" = "${var.controller_name}"

@@ -39,7 +39,20 @@ variable "vpc_id" {
 
 variable "aws_ec2_count" {
   type    = number
+  description = "Number of Ec2 Instances to launch"
   default = 1
+}
+
+variable "ec2_root_volume_delete_on_termination" {
+  type = bool
+  description = "Delete root ebs volume upon ec2 termination"
+  default = true
+}
+
+variable "ec2_root_volume_size" { 
+  type = number
+  description = "Size of root ebs volume in GiB"
+  default = 10
 }
 
 variable "sg_ingress_rules" {
@@ -51,7 +64,7 @@ variable "sg_ingress_rules" {
     from_ipv6_cidr = list(string)
   }))
 
-  description = "List of Security Group Rules for EC2"
+  description = "List of Security Group Ingress Rules for EC2"
 
   default = [{
     from_port      = 80
@@ -76,4 +89,6 @@ variable "sg_ingress_rules" {
     }
   ]
 }
+
+
 
