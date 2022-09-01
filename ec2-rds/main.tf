@@ -15,8 +15,8 @@ provider "aws" {
 module "ec2" {
   source = "./modules/ec2/"
   ami_id = var.ami_id
-  aws_instance_type = var.instance_type
-  instance_name = var.instance_name
+  aws_ec2_instance_type = var.aws_ec2_instance_type
+  aws_ec2_instance_name = var.aws_ec2_instance_name
   controller_name = var.controller_name
 
 }
@@ -24,7 +24,6 @@ module "ec2" {
 module "vpc" {
   source = "./modules/vpc"
   vpc_name = var.vpc_name
-  vpc_cidr = var.vpc_cidr
+  vpc_ipv4_cidr = var.vpc_ipv4_cidr
   controller_name = var.controller_name
-  
 }
