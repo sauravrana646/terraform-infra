@@ -5,7 +5,6 @@ variable "aws_profile" {
 }
 variable "main_name" {
   type    = string
-  default = "Terraform"
 }
 
 variable "controller_name" {
@@ -16,12 +15,10 @@ variable "controller_name" {
 variable "aws_region" {
   type        = string
   description = "AWS region to use"
-  default     = "ap-south-1"
 }
 
 variable "aws_ec2_instance_type" {
   type    = string
-  default = "t2.micro"
 }
 
 variable "ami_id" {
@@ -31,20 +28,34 @@ variable "ami_id" {
 variable "vpc_ipv4_cidr" {
   type        = string
   description = "VPC CIDR Range"
-  default     = "10.10.0.0/16"
 }
 
 variable "public_subnet_count" {
   type    = string
-  default = 1
 }
 
 variable "private_subnet_count" {
   type    = string
-  default = 1
 }
 
 variable "aws_ec2_public_key_filename" {
   type = string
 }
+
+variable "ec2_associate_eip" {
+  type = bool
+  # default = false
+}
+
+variable "ec2_ssh_user" {
+  type = string
+}
+
+variable "ec2_ssh_private_key_pem_path" {
+  type = string
+}
+
+# variable "ec2_subnet_id" {
+#   type = string
+# }
 

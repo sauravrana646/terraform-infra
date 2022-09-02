@@ -1,3 +1,8 @@
+# locals {
+#   associate_public_ip_address = var.ec2_associate_eip ? false : true
+#   aws_eip_count = var.ec2_associate_eip ? var.aws_ec2_count : 0
+# }
+
 data "local_file" "aws_ec2_public_key_path" {
   filename = "${path.cwd}/${var.aws_ec2_public_key_filename}"
 }
@@ -49,24 +54,50 @@ resource "aws_security_group" "tf_sg" {
   }
 }
 
+resource "aws_eip" "tf_eip" {
+  # count = local.aws_eip_count
+  count = var.ec2_associate_eip ? var.aws_ec2_count : 0
+  instance = aws_instance.tf_ec2[count.index].id
+  vpc      = true
+  tags = {
+    "Name"      = "${var.main_name}-eip-${count.index}"
+    "ManagedBy" = "${var.controller_name}"
+  } 
+}
+
+# resource "aws_ebs_volume" "example" {
+#   count = var.aws_ec2_count
+#   availability_zone = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
+#   size              = var.additional_ebs_size
+
+#   tags = {
+#     "Name"      = "${var.main_name}-extra-ebs-${count.index}"
+#     "ManagedBy" = "${var.controller_name}"
+#   }
+# }
+
 
 resource "aws_instance" "tf_ec2" {
   depends_on = [
-    aws_key_pair.tf_ec2_key_pair
+    aws_key_pair.tf_ec2_key_pair,
+    aws_security_group.tf_sg
   ]
   count                       = var.aws_ec2_count
   ami                         = var.ami_id
   instance_type               = var.aws_ec2_instance_type
-  associate_public_ip_address = false
-  availability_zone           = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
+  # associate_public_ip_address = local.associate_public_ip_address
+  # associate_public_ip_address = true
+  # availability_zone           = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
+  availability_zone = var.ec2_subnet_ids[count.index].availability_zone
   vpc_security_group_ids      = [aws_security_group.tf_sg.id]
-  subnet_id                   = tolist(data.aws_subnets.tf_vpc_subnets.ids)[count.index % length(data.aws_subnets.tf_vpc_subnets.ids)]
-  
-  ebs_block_device {
+  # subnet_id                   = tolist(data.aws_subnets.tf_vpc_subnets.ids)[count.index % length(data.aws_subnets.tf_vpc_subnets.ids)]
+  subnet_id = var.ec2_subnet_ids[count.index].id
+  key_name = aws_key_pair.tf_ec2_key_pair.key_name
+
+  root_block_device {
           delete_on_termination = var.ec2_root_volume_delete_on_termination
-          device_name           = "${var.main_name}-root-ebs"
           tags = {
-              "Name"      = "${var.main_name}-sg"
+              "Name"      = "${var.main_name}-ebs"
               "ManagedBy" = "${var.controller_name}"
           }
           volume_size           = var.ec2_root_volume_size
@@ -77,3 +108,23 @@ resource "aws_instance" "tf_ec2" {
     "ManagedBy" = "${var.controller_name}"
   }
 }
+
+resource "null_resource" "execute_ssh" {
+  count = var.aws_ec2_count
+  connection {
+    type = "ssh"
+    user = var.ec2_ssh_user
+    private_key = file(var.ec2_ssh_private_key_pem_path)
+    host     = aws_eip.tf_eip[count.index].public_ip
+  }
+  
+  provisioner "remote-exec" {
+    inline = [
+      "whoami",
+      "hostname",
+      "echo \"Done\""
+    ]  
+  
+  }  
+}
+

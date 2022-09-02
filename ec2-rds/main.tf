@@ -23,6 +23,10 @@ module "ec2" {
   controller_name             = var.controller_name
   aws_ec2_public_key_filename = var.aws_ec2_public_key_filename
   vpc_id                      = module.vpc.vpc_id
+  ec2_associate_eip = var.ec2_associate_eip
+  ec2_ssh_user = var.ec2_ssh_user
+  ec2_ssh_private_key_pem_path = var.ec2_ssh_private_key_pem_path
+  ec2_subnet_ids = module.vpc.subnet_ids
 }
 
 module "vpc" {
@@ -30,4 +34,7 @@ module "vpc" {
   main_name       = var.main_name
   vpc_ipv4_cidr   = var.vpc_ipv4_cidr
   controller_name = var.controller_name
+  public_subnet_count = var.public_subnet_count
+  private_subnet_count = var.private_subnet_count
+  # ec2_subnet_id = var.ec2_subnet_id
 }
