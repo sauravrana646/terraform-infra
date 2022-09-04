@@ -9,7 +9,7 @@ resource "aws_vpc" "tf_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name      = "${var.main_name}"
+    Name      = "${var.main_name}-vpc"
     ManagedBy = "${var.controller_name}"
   }
 }

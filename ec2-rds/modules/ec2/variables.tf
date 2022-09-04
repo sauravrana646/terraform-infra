@@ -3,7 +3,7 @@ variable "vpc_id" {
   description = "VPC Id retrived automatically from the VPC Module"
 }
 
-variable "ec2_subnet_ids" {
+variable "ec2_public_subnet_ids" {
   type = any
 }
 
@@ -22,7 +22,7 @@ variable "controller_name" {
 variable "ami_id" {
   type        = string
   description = "AMI Id for the EC2 Instance"
-    validation {
+  validation {
     # regex(...) fails if it cannot find a match
     condition     = can(regex("^ami-", var.ami_id))
     error_message = "The image_id value must be a valid AMI id, starting with \"ami-\"."
@@ -35,12 +35,6 @@ variable "aws_ec2_instance_type" {
   default     = "t2.micro"
 }
 
-variable "aws_ec2_availability_zone" {
-  type        = string
-  description = "Availability Zone to launch EC2 in"
-  default     = "ap-south-1a"
-}
-
 variable "aws_ec2_public_key_filename" {
   type        = string
   description = "Name of the public key file"
@@ -48,21 +42,21 @@ variable "aws_ec2_public_key_filename" {
 
 
 variable "aws_ec2_count" {
-  type    = number
+  type        = number
   description = "Number of Ec2 Instances to launch"
-  default = 1
+  default     = 1
 }
 
 variable "ec2_root_volume_delete_on_termination" {
-  type = bool
+  type        = bool
   description = "Delete root ebs volume upon ec2 termination"
-  default = true
+  default     = true
 }
 
-variable "ec2_root_volume_size" { 
-  type = number
+variable "ec2_root_volume_size" {
+  type        = number
   description = "Size of root ebs volume in GiB"
-  default = 10
+  default     = 10
 }
 
 variable "ec2_associate_eip" {
@@ -71,17 +65,17 @@ variable "ec2_associate_eip" {
 }
 
 variable "additional_ebs_size" {
-  type = number
+  type    = number
   default = 10
 }
 
 variable "ec2_ssh_user" {
-  type = string
+  type    = string
   default = "ec2-user"
 }
 
 variable "ec2_ssh_private_key_pem_path" {
-  type = string
+  type    = string
   default = "~/.ssh/id_rsa"
 }
 
@@ -114,7 +108,7 @@ variable "sg_ingress_rules" {
       from_port      = 22
       to_port        = 22
       protocol       = "tcp"
-      from_ipv4_cidr = ["10.10.0.0/16", "0.0.0.0/0"]
+      from_ipv4_cidr = ["0.0.0.0/0"]
       from_ipv6_cidr = null
     }
   ]

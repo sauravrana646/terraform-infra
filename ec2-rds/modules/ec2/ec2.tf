@@ -56,13 +56,13 @@ resource "aws_security_group" "tf_sg" {
 
 resource "aws_eip" "tf_eip" {
   # count = local.aws_eip_count
-  count = var.ec2_associate_eip ? var.aws_ec2_count : 0
+  count    = var.ec2_associate_eip ? var.aws_ec2_count : 0
   instance = aws_instance.tf_ec2[count.index].id
   vpc      = true
   tags = {
     "Name"      = "${var.main_name}-eip-${count.index}"
     "ManagedBy" = "${var.controller_name}"
-  } 
+  }
 }
 
 # resource "aws_ebs_volume" "example" {
@@ -82,27 +82,27 @@ resource "aws_instance" "tf_ec2" {
     aws_key_pair.tf_ec2_key_pair,
     aws_security_group.tf_sg
   ]
-  count                       = var.aws_ec2_count
-  ami                         = var.ami_id
-  instance_type               = var.aws_ec2_instance_type
+  count         = var.aws_ec2_count
+  ami           = var.ami_id
+  instance_type = var.aws_ec2_instance_type
   # associate_public_ip_address = local.associate_public_ip_address
   # associate_public_ip_address = true
   # availability_zone           = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
-  availability_zone = var.ec2_subnet_ids[count.index].availability_zone
-  vpc_security_group_ids      = [aws_security_group.tf_sg.id]
+  availability_zone      = var.ec2_public_subnet_ids[count.index].availability_zone
+  vpc_security_group_ids = [aws_security_group.tf_sg.id]
   # subnet_id                   = tolist(data.aws_subnets.tf_vpc_subnets.ids)[count.index % length(data.aws_subnets.tf_vpc_subnets.ids)]
-  subnet_id = var.ec2_subnet_ids[count.index].id
-  key_name = aws_key_pair.tf_ec2_key_pair.key_name
+  subnet_id = var.ec2_public_subnet_ids[count.index].id
+  key_name  = aws_key_pair.tf_ec2_key_pair.key_name
 
   root_block_device {
-          delete_on_termination = var.ec2_root_volume_delete_on_termination
-          tags = {
-              "Name"      = "${var.main_name}-ebs"
-              "ManagedBy" = "${var.controller_name}"
-          }
-          volume_size           = var.ec2_root_volume_size
-          volume_type           = "gp2"
-        }
+    delete_on_termination = var.ec2_root_volume_delete_on_termination
+    tags = {
+      "Name"      = "${var.main_name}-ebs"
+      "ManagedBy" = "${var.controller_name}"
+    }
+    volume_size = var.ec2_root_volume_size
+    volume_type = "gp2"
+  }
   tags = {
     "Name"      = "${var.main_name}-instance-${count.index}"
     "ManagedBy" = "${var.controller_name}"
@@ -112,19 +112,19 @@ resource "aws_instance" "tf_ec2" {
 resource "null_resource" "execute_ssh" {
   count = var.aws_ec2_count
   connection {
-    type = "ssh"
-    user = var.ec2_ssh_user
+    type        = "ssh"
+    user        = var.ec2_ssh_user
     private_key = file(var.ec2_ssh_private_key_pem_path)
-    host     = aws_eip.tf_eip[count.index].public_ip
+    host        = aws_eip.tf_eip[count.index].public_ip
   }
-  
+
   provisioner "remote-exec" {
     inline = [
       "whoami",
       "hostname",
       "echo \"Done\""
-    ]  
-  
-  }  
+    ]
+
+  }
 }
 

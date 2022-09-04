@@ -1,13 +1,13 @@
 variable "controller_name" {
-  type    = string
+  type        = string
   description = "Management Tag for the resources"
-  default = "Terraform"
+  default     = "Terraform"
 }
 
 variable "main_name" {
-  type    = string
+  type        = string
   description = "Prefix name for the resources"
-  default = "Terraform"
+  default     = "Terraform"
 }
 
 variable "vpc_ipv4_cidr" {
@@ -17,13 +17,13 @@ variable "vpc_ipv4_cidr" {
 }
 
 variable "public_subnet_count" {
-  type    = number
+  type        = number
   description = "Number of Public Subnets to launch"
-  default = 1
+  default     = 1
 }
 
 variable "private_subnet_count" {
-  type    = number
+  type        = number
   description = "Number of Private Subnets to launch"
-  default = 1
+  default     = 1
 }
