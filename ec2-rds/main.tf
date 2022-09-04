@@ -16,21 +16,21 @@ module "ec2" {
   depends_on = [
     module.vpc
   ]
-  source                       = "./modules/ec2/"
-  main_name                    = var.main_name
-  controller_name              = var.controller_name
-  ami_id                       = var.ami_id
-  aws_ec2_instance_type        = var.aws_ec2_instance_type
-  aws_ec2_count = var.aws_ec2_count
+  source                                = "./modules/ec2/"
+  main_name                             = var.main_name
+  controller_name                       = var.controller_name
+  ami_id                                = var.ami_id
+  aws_ec2_instance_type                 = var.aws_ec2_instance_type
+  aws_ec2_count                         = var.aws_ec2_count
   ec2_root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
-  ec2_root_volume_size = var.ec2_root_volume_size
-  ec2_associate_eip = var.ec2_associate_eip
-  additional_ebs_size = var.additional_ebs_size
-  ec2_ssh_user = var.ec2_ssh_user
-  aws_ec2_public_key_filename  = var.aws_ec2_public_key_filename
-  ec2_ssh_private_key_pem_path = var.ec2_ssh_private_key_pem_path
-  vpc_id                       = module.vpc.vpc_id
-  ec2_public_subnet_ids        = module.vpc.public_subnet_ids
+  ec2_root_volume_size                  = var.ec2_root_volume_size
+  ec2_associate_eip                     = var.ec2_associate_eip
+  additional_ebs_size                   = var.additional_ebs_size
+  ec2_ssh_user                          = var.ec2_ssh_user
+  aws_ec2_public_key_filename           = var.aws_ec2_public_key_filename
+  ec2_ssh_private_key_pem_path          = var.ec2_ssh_private_key_pem_path
+  vpc_id                                = module.vpc.vpc_id
+  ec2_public_subnet_ids                 = module.vpc.public_subnet_ids
 }
 
 module "vpc" {
