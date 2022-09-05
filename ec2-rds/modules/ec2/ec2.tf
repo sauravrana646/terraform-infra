@@ -65,16 +65,23 @@ resource "aws_eip" "tf_eip" {
   }
 }
 
-# resource "aws_ebs_volume" "example" {
-#   count = var.aws_ec2_count
-#   availability_zone = data.aws_availability_zones.tf_vpc_az.names[count.index % length(data.aws_availability_zones.tf_vpc_az.names)]
-#   size              = var.additional_ebs_size
+resource "aws_ebs_volume" "tf_additional_ebs" {
+  count             = var.aws_ec2_count
+  availability_zone = var.ec2_public_subnet_ids[count.index].availability_zone
+  size              = var.additional_ebs_size
 
-#   tags = {
-#     "Name"      = "${var.main_name}-extra-ebs-${count.index}"
-#     "ManagedBy" = "${var.controller_name}"
-#   }
-# }
+  tags = {
+    "Name"      = "${var.main_name}-additional-ebs-${count.index}"
+    "ManagedBy" = "${var.controller_name}"
+  }
+}
+
+resource "aws_volume_attachment" "tf_additional_ebs_attachment" {
+  count       = var.aws_ec2_count
+  device_name = "/dev/sdh"
+  volume_id   = aws_ebs_volume.tf_additional_ebs[count.index].id
+  instance_id = aws_instance.tf_ec2[count.index].id
+}
 
 
 resource "aws_instance" "tf_ec2" {
@@ -110,6 +117,9 @@ resource "aws_instance" "tf_ec2" {
 }
 
 resource "null_resource" "execute_ssh" {
+  depends_on = [
+    aws_instance.tf_ec2
+  ]
   count = var.aws_ec2_count
   connection {
     type        = "ssh"

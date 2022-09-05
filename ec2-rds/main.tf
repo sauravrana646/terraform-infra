@@ -37,3 +37,40 @@ module "rds" {
   rds_admin_password     = var.rds_admin_password
   rds_private_subnet_ids = module.vpc.private_subnet_ids
 }
+
+resource "local_file" "ansible-vars" {
+  content = <<-DOC
+  hosts: tag_ManagedBy_${var.controller_name}
+  remote_user : "${var.ec2_ssh_user}"
+  ansible_private_key_file : "${var.ec2_ssh_private_key_pem_path}"
+  DOC
+  filename = "../../ansible-infra/main/tf-ansible-vars.yml" 
+}
+
+resource "local_file" "dynamic-inventory-ansible" {
+  content = <<-DOC
+  ---
+  plugin: amazon.aws.aws_ec2
+  aws_profile: ${var.aws_profile}
+  regions:
+  - ${var.aws_region}
+  keyed_groups:
+  - key: tags
+    prefix: tag
+  filters:
+    instance-state-name : running
+  compose:
+    ansible_host: public_ip_address
+  DOC
+  filename = "../../ansible-infra/inventory/aws_ec2.yaml" 
+}
+
+resource "null_resource" "ansible-exec" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+  provisioner "local-exec" {
+    working_dir = "../../ansible-infra/"
+    command = "ansible-playbook main/main.yaml"
+  }
+}
