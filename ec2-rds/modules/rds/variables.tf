@@ -10,6 +10,16 @@ variable "controller_name" {
   default     = "Terraform"
 }
 
+variable "vpc_id" {
+  type        = string
+  description = "VPC Id retrived automatically from the VPC Module"
+}
+
+variable "ec2_security_group_id" {
+  type = string
+  description = "Security Group ID of the EC2 Instance"
+}
+
 variable "rds_private_subnet_ids" {
   type = any
 

@@ -83,7 +83,6 @@ resource "aws_volume_attachment" "tf_additional_ebs_attachment" {
   instance_id = aws_instance.tf_ec2[count.index].id
 }
 
-
 resource "aws_instance" "tf_ec2" {
   depends_on = [
     aws_key_pair.tf_ec2_key_pair,

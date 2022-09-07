@@ -10,7 +10,7 @@ main_name       = "daffo-prod"
 
 
 # VPC Variables
-vpc_ipv4_cidr        = "11.11.0.0/16"
+# vpc_ipv4_cidr        = "11.11.0.0/16"
 public_subnet_count  = 1
 private_subnet_count = 2
 

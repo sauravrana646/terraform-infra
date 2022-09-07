@@ -36,24 +36,35 @@ module "rds" {
   rds_admin_username     = var.rds_admin_username
   rds_admin_password     = var.rds_admin_password
   rds_private_subnet_ids = module.vpc.private_subnet_ids
+  vpc_id                 = module.vpc.vpc_id 
+  ec2_security_group_id  = module.ec2.ec2_security_group_id
 }
 
 resource "local_file" "ansible-vars" {
+  depends_on = [
+    module.ec2
+  ]
   content = <<-DOC
-  hosts: tag_ManagedBy_${var.controller_name}
-  remote_user : "${var.ec2_ssh_user}"
+  remote_hosts: tag_ManagedBy_${var.controller_name}
+  aws_region: ${var.aws_region}
+  remote_ssh_user : "${var.ec2_ssh_user}"
   ansible_private_key_file : "${var.ec2_ssh_private_key_pem_path}"
+  additional_ebs_size: ${var.additional_ebs_size}G
   DOC
-  filename = "../../ansible-infra/main/tf-ansible-vars.yml" 
+  filename = "../../ansible-infra/vars/tf-ansible-vars.yml" 
 }
 
 resource "local_file" "dynamic-inventory-ansible" {
+  depends_on = [
+    module.ec2
+  ]
   content = <<-DOC
   ---
   plugin: amazon.aws.aws_ec2
   aws_profile: ${var.aws_profile}
   regions:
   - ${var.aws_region}
+  hostnames: ['dns-name']
   keyed_groups:
   - key: tags
     prefix: tag
@@ -65,12 +76,15 @@ resource "local_file" "dynamic-inventory-ansible" {
   filename = "../../ansible-infra/inventory/aws_ec2.yaml" 
 }
 
-resource "null_resource" "ansible-exec" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    working_dir = "../../ansible-infra/"
-    command = "ansible-playbook main/main.yaml"
-  }
-}
+# resource "null_resource" "ansible-exec" {
+#   depends_on = [
+#     module.ec2
+#   ]
+#   triggers = {
+#     always_run = "${timestamp()}"
+#   }
+#   provisioner "local-exec" {
+#     working_dir = "../../ansible-infra/"
+#     command = "ansible-playbook main/main.yaml"
+#   }
+# }
